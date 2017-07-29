@@ -254,7 +254,9 @@ buffer."
   (setq fsm-state nil)
   (when fsm-process
     (set-process-sentinel fsm-process nil)
-    (kill-buffer (process-buffer fsm-process))))
+    (fsm-debug "QUESTION: Not terminating buffer: %S\n" (process-buffer fsm-process))
+    ;;(kill-buffer (process-buffer fsm-process))
+    ))
 
 (defun fsm-assert-invariants ()
   (assert fsm-buffer-p)
