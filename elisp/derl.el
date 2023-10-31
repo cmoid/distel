@@ -170,11 +170,13 @@ Use the distribution protocol's EXIT2 message."
     (goto-char (point-min))
     (erlext-read2)                      ; skip length
     (let ((tag (erlext-read1)))
-      (unless (equal 110 tag)   ; tag-check (n)
+      (unless (equal 78 tag)   ; tag-check (N)
+        ;; NOTE: this function is called in an unwind-protect and so the call
+        ;; to fsm-fail gets buried and one never sees the wrong tag error msg
         (fsm-fail (format nil "wrong-tag: %S" tag))))
-    (let ((version (erlext-read2))
-          (flags   (erlext-read4))
+    (let ((flags   (erlext-readn 8))
           (challenge (erlext-readn 4))
+          (creation (erlext-readn 4))
           (rem-node (buffer-substring (point) (derl-msg-end))))
       (derl-eat-msg)
       (derl-send-challenge-reply challenge)
@@ -189,8 +191,10 @@ Use the distribution protocol's EXIT2 message."
   "Receive and check challenge ack. If it's OK then the handshake is
 complete and we become live."
   (if (equal event 'closed)
-      (message "Distel thinks the cookie is %s. Erlang seems to disagree."
-               (derl-cookie)))
+      ;; this error message is misleading the socket could be closed for other
+      ;; reasons
+      (message "Distel thinks the cookie is %s. Erlang seems to disagree with %s"
+               (derl-cookie) data))
   (fsm-check-event event 'data)
   (when (derl-have-msg)
     (goto-char (point-min))
@@ -209,12 +213,22 @@ complete and we become live."
   (erase-buffer)
   (derl-send-msg
    (fsm-build-message
-     (fsm-encode1 110)                  ; tag (n)
-     (fsm-encode2 5)                    ; version
-     (fsm-encode4 (logior derl-flag-extended-references
+     (fsm-encode1 78)                  ; tag (N)
+     (fsm-encode8 (logior derl-flag-extended-references
                           derl-flag-extended-pids-ports
                           derl-flag-new-fun-tags
-                          derl-flag-utf8-atoms))
+                          derl-flag-utf8-atoms
+                          derl-flag-unlink-id
+                          derl-flag-handshake-23
+                          derl-flag-big-creation
+                          derl-flag-map-tag
+                          derl-flag-new-floats
+                          derl-flag-bit-binaries
+                          derl-flag-export-ptr-tag
+                          derl-flag-fun-tags
+                          derl-flag-V4-NC))
+     (fsm-encode4 37)
+     (fsm-encode2(length (symbol-name erl-node-name)))
      (fsm-insert (symbol-name erl-node-name)))))
 
 (defun derl-send-challenge-reply (challenge)
