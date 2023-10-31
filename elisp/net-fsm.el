@@ -267,7 +267,7 @@ buffer."
         (goto-char (point-min))
         (while (search-forward "\n" nil t)
           (replace-match "\\n" nil t))
-        (fsm-elide-string (buffer-string) 30))
+        (fsm-elide-string (buffer-string) 60))
     x))
 
 (defun fsm-elide-string (s len)
