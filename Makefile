@@ -1,10 +1,10 @@
 PACKAGE := distel
 VERSION := $(shell git describe --tags 2> /dev/null)
 
-prefix      = /usr/local
+prefix      = ~/code/emacs-ext
 exec_prefix = ${prefix}
 bindir      = ${exec_prefix}/bin
-datadir     = ${prefix}/share
+datadir     = ${prefix}
 infodir     = ${prefix}/info
 erlc        = erlc
 emacs       = emacs
@@ -61,7 +61,7 @@ ebin/%.beam: src/%.erl
 
 ## Elisp
 elisp/%.elc: elisp/%.el
-	${emacs} -batch -L elisp -f batch-byte-compile $<
+	${emacs} -batch -l ~/.emacs -L elisp -f batch-byte-compile $<
 
 ## Info documentation
 doc/distel.info: ${DOC_SRC}
