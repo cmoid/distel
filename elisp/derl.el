@@ -67,7 +67,15 @@ Used for sending exit signals when the node goes down.")
 (defconst derl-flag-hidden-atom-cache   #x40)
 (defconst derl-flag-new-fun-tags        #x80)
 (defconst derl-flag-extended-pids-ports #x100)
+(defconst derl-flag-export-ptr-tag      #x200)
+(defconst derl-flag-bit-binaries        #x400)
+(defconst derl-flag-new-floats          #x800)
 (defconst derl-flag-utf8-atoms          #x10000)
+(defconst derl-flag-map-tag             #x20000)
+(defconst derl-flag-big-creation        #x40000)
+(defconst derl-flag-handshake-23        #x1000000)
+(defconst derl-flag-unlink-id           #x2000000)
+(defconst derl-flag-V4-NC               (ash 1 34))
 
 ;; ------------------------------------------------------------
 ;; External API
