@@ -44,6 +44,9 @@
 (defconst erlext-tag-alist
   '((cached     . 67)
     (newFloat   . 70)
+    (newPid     . 88)
+    (newPort    . 89)
+    (newerRef   . 90)
     (smallInt   . 97)
     (int        . 98)
     (float      . 99)                   ;superseded by newFloat
@@ -417,6 +420,12 @@
                             (erlext-read4)    ; id
                             (erlext-read4)    ; serial
                             (erlext-read1)))  ; creation
+      ((newPid)     (vector erl-tag
+                             'erl-pid
+                             (erlext-read-obj) ; node
+                             (erlext-read4)    ; id
+                             (erlext-read4)    ; serial
+                             (erlext-read4)))  ; creation
       ((port)       (vector erl-tag
                             'erl-port
                             (erlext-read-obj) ; node

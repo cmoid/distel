@@ -205,6 +205,19 @@ buffer."
               (logand (ash n -16) 255)
               (logand (ash n -8)  255)
               (logand n           255))))
+
+(defun fsm-encode8 (n)
+  "Encode N as a 8-byte big-endian integer."
+  (fsm-with-message-buffer
+      (insert (logand (ash n -56) 255)
+              (logand (ash n -48) 255)
+              (logand (ash n -40) 255)
+              (logand (ash n -32) 255)
+              (logand (ash n -24) 255)
+              (logand (ash n -16) 255)
+              (logand (ash n -8)  255)
+              (logand n           255))))
+
 (defun fsm-insert (&rest args)
   "Insert ARGS (characters or strings) into the encoding buffer."
   (fsm-with-message-buffer
