@@ -35,12 +35,12 @@
               (setq b (erl-spawn-link-async (setq erl-test-thingo 'b)
                                             (erl-exit 'stop)))
               (erl-continue-forever)))
-    (assert (not (erl-local-pid-alive-p a)))
-    (assert (not (erl-local-pid-alive-p b)))
-    (assert (not (erl-local-pid-alive-p c)))
-    (assert (erl-local-pid-alive-p d))
+    (cl-assert (not (erl-local-pid-alive-p a)))
+    (cl-assert (not (erl-local-pid-alive-p b)))
+    (cl-assert (not (erl-local-pid-alive-p c)))
+    (cl-assert (erl-local-pid-alive-p d))
     (with-erl-process d
-      (assert (equal (pop erl-mailbox)
+      (cl-assert (equal (pop erl-mailbox)
                      (tuple 'EXIT a 'stop))))
     t))
 
@@ -90,3 +90,7 @@
   (when current-prefix-arg
     (setq erl-interactive-remaining-cases erl-interactive-test-cases))
   (funcall (pop erl-interactive-remaining-cases) node))
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:

@@ -648,3 +648,7 @@ during the next `erl-schedule'."
 
 (provide 'erl)
 ;;; erl.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
