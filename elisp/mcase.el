@@ -43,7 +43,7 @@ Pattern variable: x, my-variable
   match.
   Within the body of a successful pattern match, lisp variables are
   bound for all pattern variables.
-Constant: 'symbol, '(1 2 3), ...
+Constant: \\='symbol, \\='(1 2 3), ...
   Quoted constant, matched with `equal'.
 Bound variable: ,var
   Pre-bound Lisp variable, matched by value.
@@ -194,7 +194,7 @@ Example: (QUOTE QUOTE)"
 
 (defun mcase-expect (pattern object expected)
   "Assert that matching PATTERN with OBJECT yields EXPECTED.
-EXPECTED is either 'fail or a list of bindings (in any order)."
+EXPECTED is either \\='fail or a list of bindings (in any order)."
   (let ((actual (mcase-match pattern object)))
     (if (or (and (eq actual 'fail)
                  (eq actual expected))
