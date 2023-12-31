@@ -1,6 +1,5 @@
 ;;; erl-example.el
 
-(eval-when-compile (require 'cl))
 (require 'erl)
 
 ;; Echo
@@ -14,7 +13,7 @@ The server registers the name `echo'."
     (erlex-echo-loop recipient)))
 
 (defun erlex-echo-loop (recipient)
-  "The 'receive loop' of the echo server."
+  "The \\='receive loop\\=' of the echo server."
   (erl-receive (recipient)
       (('exit t)
        (msg (erl-send recipient msg)
@@ -56,3 +55,7 @@ check for them there!"
     ;; its registered name - it's buffer is "*reg counter*", and you
     ;; can safely C-x k it.
     ))
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:

@@ -1,4 +1,4 @@
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl)) ;; lexical-let*
 (require 'net-fsm)
 
 (defvar epmd-hosts '("localhost")
@@ -14,7 +14,7 @@
          (len-lsb (logand len 255)))
     (fsm-send-string (concat (string len-msb len-lsb)
                              arg)))
-  (ecase (elt arg 0)
+  (cl-ecase (elt arg 0)
     ((?n) (fsm-change-state #'epmd-recv-names-resp))
     ((?z) (fsm-change-state #'epmd-recv-port-resp))
     ((?a) (fsm-change-state #'epmd-recv-alive-resp))))
@@ -22,7 +22,7 @@
 (defun epmd-recv-names-resp (event data)
   (declare (special arg))
   (fsm-check-event event 'data)
-  (assert (>= (length data) 4))
+  (cl-assert (>= (length data) 4))
   (fsm-terminate (substring arg 4)))
 
 (defun epmd-recv-port-resp (event data)
@@ -30,17 +30,17 @@
   (message "Event: %s" event)
   (message "data: %s" data)
   (message "arg: %s" arg)
-  (ecase event
+  (cl-ecase event
     ((data)
-     (assert (> (length arg) 2))
-     (assert (= 119 (elt data 0)))
+     (cl-assert (> (length arg) 2))
+     (cl-assert (= 119 (elt data 0)))
      (fsm-terminate (+ (ash    (elt arg 2) 8)
                        (logand (elt arg 3) 255))))
     ((closed)
      (fsm-fail))))
 
 (defun epmd-recv-alive-resp (event data)
-  (ecase event
+  (cl-ecase event
     ((closed)
      (fsm-fail))
     ((data)

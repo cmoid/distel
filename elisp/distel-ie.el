@@ -13,7 +13,6 @@
 ;;; (it's probably going to be released onto an unexpecting public under
 ;;;  some sort of BSD license).
 
-(eval-when-compile (require 'cl))
 (require 'erlang)
 (require 'erl)
 (require 'erl-service)
@@ -76,7 +75,7 @@
   (erl-ie-read-nodename)
   (let ((end (point))
         (beg (save-excursion
-               (loop do (re-search-backward "^$")
+               (cl-loop do (re-search-backward "^$")
                      while (looking-at "end"))
                (point))))
     (erl-ie-evaluate beg end node t)))
@@ -231,3 +230,7 @@ for debugging a file without ruining the content by mistake."
     ("\C-\M-x" . erl-ie-eval-defun)))
 
 (provide 'distel-ie)
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
