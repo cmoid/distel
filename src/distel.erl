@@ -306,7 +306,7 @@ tracer_loop(Tracer, Tracee) ->
 
 tracer_format(Msg) ->
     %% Let's steal some code reuse..
-    pman_buf_utils:textformat(Msg).
+    io_lib:format("~p",[Msg]).
 
 %% ----------------------------------------------------------------------
 %% Profiling
