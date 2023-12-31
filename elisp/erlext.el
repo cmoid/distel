@@ -44,7 +44,8 @@
 (defconst erlext-tag-alist
   '((cached     . 67)
     (newFloat   . 70)
-    (newPid     . 88)
+    (pid     . 88)                      ; OTP 26 uses NEW_PID, calling it pid to preseve
+                                        ; code elsewhere
     (newPort    . 89)
     (newerRef   . 90)
     (smallInt   . 97)
@@ -55,7 +56,7 @@
     (smallAtom_utf8  . 119)
     (ref        . 101)                  ;superseded by newRef
     (port       . 102)
-    (pid        . 103)
+    ;;(pid        . 103)
     (smallTuple . 104)
     (largeTuple . 105)
     (null       . 106)
@@ -352,7 +353,8 @@
   (erlext-write-obj node)
   (erlext-write4 id)
   (erlext-write4 serial)
-  (erlext-write1 creation))
+  ;; note this last right of 4 reflects NEW_PID
+  (erlext-write4 creation))
 (defun erlext-write-port (node id creation)
   (erlext-write1 (erlext-get-code 'port))
   (erlext-write-obj node)
@@ -419,13 +421,7 @@
                             (erlext-read-obj) ; node
                             (erlext-read4)    ; id
                             (erlext-read4)    ; serial
-                            (erlext-read1)))  ; creation
-      ((newPid)     (vector erl-tag
-                             'erl-pid
-                             (erlext-read-obj) ; node
-                             (erlext-read4)    ; id
-                             (erlext-read4)    ; serial
-                             (erlext-read4)))  ; creation
+                            (erlext-read4)))  ; creation
       ((port)       (vector erl-tag
                             'erl-port
                             (erlext-read-obj) ; node
