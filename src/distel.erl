@@ -641,7 +641,7 @@ attach_meta_cmd(up, Att = #attach{stack={Pos,Max}}) ->
             Att#attach.emacs ! {message, <<"already at top.">>},
             Att
     end;
-attach_meta_cmd(down, Att = #attach{stack={_Max,_Max}}) ->
+attach_meta_cmd(down, Att = #attach{stack={Max,Max}}) ->
     Att#attach.emacs ! {message, <<"already at bottom">>},
     Att;
 attach_meta_cmd(down, Att = #attach{stack={Pos,Max}}) ->
@@ -676,7 +676,7 @@ attach_goto(A = #attach{stack={Pos,Max}},{Mod,Line},Bs) ->
     A#attach.emacs ! {variables, Vars},
     A#attach.emacs ! {location, Mod, Line, Pos, Max},
     A.
-stack_pos(#attach{stack={_X,_X}}) -> nostack;
+stack_pos(#attach{stack={X,X}}) -> nostack;
 stack_pos(#attach{stack={Pos,_Max}}) -> Pos.
 
 %% ----------------------------------------------------------------------
