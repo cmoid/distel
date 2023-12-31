@@ -15,7 +15,6 @@
 ;; mailbox. If the process returns without setting a new continuation,
 ;; it terminates with 'normal' status.
 
-(eval-when-compile (require 'cl))
 (require 'mcase)
 
 (eval-and-compile
@@ -39,12 +38,12 @@
 ;; Exactly matches the [ERL-TAG erl-pid NODE ID SERIAL CREATION] vector used
 ;; in the `erlext' mapping, so don't change it!
 (defvar erl-pid-counter) (defvar erl-node-name) ; defined below
-(defstruct (erl-pid
+(cl-defstruct (erl-pid
             (:type vector)
             :named
             (:initial-offset 1)         ; make room for erl-tag (TYPE)
             (:constructor nil)          ; no default constructor
-            (:constructor %make-erl-local-pid (&optional (id (incf erl-pid-counter))
+            (:constructor %make-erl-local-pid (&optional (id (cl-incf erl-pid-counter))
                                                          (node erl-node-name)
                                                          (serial 0)
                                                          (creation 0))))
@@ -265,7 +264,7 @@ Also makes the current process immediately reschedulable."
 
 (defun erl-make-ref ()
   "Make a unique reference object."
-  (vector erl-tag 'erl-ref erl-node-name (incf erl-ref-counter) 0))
+  (vector erl-tag 'erl-ref erl-node-name (cl-incf erl-ref-counter) 0))
 
 (defun erl-binaryp (x)
   (and (eq (elt x 0) erl-tag) (eq (elt x 1) 'erl-binary)))
@@ -413,7 +412,7 @@ Invokes the scheduler if necessary."
   (let ((erl-in-scheduler-loop t))
     (while (erl-schedule-once)))
   ;; post-condition
-  (assert (null erl-schedulable-processes)))
+  (cl-assert (null erl-schedulable-processes)))
 
 (defun erl-schedule-once ()
   "Schedule the next process to run.  Returns true if a process was scheduled."
@@ -440,7 +439,7 @@ Invokes the scheduler if necessary."
   "Run a process.
 Calls the current continuation from within the process' buffer."
   (with-erl-process %pid
-    (incf erl-reductions)
+    (cl-incf erl-reductions)
     ;; The %ugly-names are to avoid shadowing the caller's dynamic
     ;; bindings.
     (let ((%k erl-continuation)
@@ -498,7 +497,7 @@ during the next `erl-schedule'."
       (setq erl-links (remove to erl-links)))))
 
 (defun erl-set-name (fmt &rest args)
-  "Set `erl-process-name' to (apply 'format (FMT . ARGS))."
+  "Set `erl-process-name' to (apply \\='format (FMT . ARGS))."
   (setq erl-process-name (apply 'format (cons fmt args))))
 
 ;; PID utilities
@@ -605,7 +604,7 @@ during the next `erl-schedule'."
 ;; Initialisation
 
 (defun erl-nodeup (node proc)
-  (pushnew node erl-nodes)
+  (cl-pushnew node erl-nodes)
   (message "nodeup: %S" node))
 
 (defun erl-nodedown (node)

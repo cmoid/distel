@@ -1,4 +1,4 @@
-(eval-when-compile (require 'cl))
+;;(eval-when-compile (require 'cl))
 (require 'erlext)                       ; for `erl-tag'.
 
 (eval-and-compile
@@ -166,7 +166,7 @@ Example: (QUOTE QUOTE)"
     (let* ((var (mcase-unbound-var-symbol pat))
            (binding (assoc var bindings)))
       (cond ((null binding)
-             (acons var object bindings))
+             (cl-acons var object bindings))
             ((equal (cdr binding) object)
              bindings)
             (t
@@ -217,7 +217,7 @@ EXPECTED is either \\='fail or a list of bindings (in any order)."
   (mcase-expect 1 2 'fail)
   (mcase-expect '(x x) '(1 2) 'fail)
   (mcase-expect '_ '(1 2) 'nil)
-  (assert (equal 'yes
+  (cl-assert (equal 'yes
                  (mcase '(call 42 lists length ((1 2 3)))
                    (t 'no)
                    (1 'no)

@@ -32,7 +32,7 @@
   :group 'distel)
 
 (defcustom distel-inhibit-backend-check nil
-  "Don't check for the 'distel' module when we connect to new nodes."
+  "Don't check for the \\='distel\\=' module when we connect to new nodes."
   :type 'boolean
   :group 'distel)
 
@@ -54,7 +54,7 @@
 (defun distel-erlang-mode-hook ()
   "Function to enable the Distel extensions to Erlang mode.
 You can add this to `erlang-mode-hook' with:
-  (add-hook 'erlang-mode-hook 'distel-erlang-mode-hook)"
+  (add-hook \\='erlang-mode-hook \\='distel-erlang-mode-hook)"
   (erlang-extended-mode t))
 
 ;; Extended feature key bindings (C-c C-d prefix)
@@ -189,7 +189,7 @@ about Emacs' online help, use \"\\[help-for-help]\".
                 (edb-module-interpreted "<interpreted>" ""))))
 
 (add-hook 'erlang-extended-mode-hook
-          '(lambda ()
+          #'(lambda ()
              (if erlang-extended-mode
                  (distel-init)
                (distel-finish))))

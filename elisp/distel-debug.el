@@ -1,6 +1,5 @@
 ;;; distel-debug.el --- Erlang debugger front-end
 
-(eval-when-compile (require 'cl))
 (require 'erl)
 (require 'erl-service)
 (require 'erlang)
@@ -189,7 +188,7 @@ Use edb-restore-dbg-state to restore the state to the erlang node."
 (defvar edb-processes nil
   "EWOC of processes running interpreted code.")
 
-(defstruct (edb-process
+(cl-defstruct (edb-process
             (:constructor nil)
             (:constructor make-edb-process (pid mfa status info)))
   pid mfa status info)
@@ -467,7 +466,7 @@ When MOD is given, only update those visiting that module."
                    'distel 'debug_attach (list erl-self pid))
      (erl-receive ()
          ((['rex pid]
-           (assert (erl-pid-p pid))
+           (cl-assert (erl-pid-p pid))
            (setq edb-pid pid)
            (setq edb-node (erl-pid-node pid))
            (save-excursion (edb-make-variables-window))))
@@ -863,7 +862,11 @@ breakpoints are already marked as stale."
 
 (defun edb-first (pred list)
   "Return the first element of LIST that satisfies PRED."
-  (loop for x in list
+  (cl-loop for x in list
         when (funcall pred x) return x))
 
 (provide 'distel-debug)
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:

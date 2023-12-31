@@ -1,7 +1,7 @@
 ; Network state machine engine
 
 (eval-when-compile
-  (require 'cl)
+  ;;(require 'cl)
   (or (fboundp 'defvar-local)
       (defmacro defvar-local (var val &optional docstring)
         (declare (debug defvar) (doc-string 3))
@@ -185,7 +185,7 @@ buffer."
 
 (defun fsm-encode (n size)
   "Encode N as a SIZE-byte integer."
-  (ecase size
+  (cl-ecase size
     ((1) (fsm-encode1 n))
     ((2) (fsm-encode2 n))
     ((4) (fsm-encode4 n))))
@@ -259,8 +259,8 @@ buffer."
     ))
 
 (defun fsm-assert-invariants ()
-  (assert fsm-buffer-p)
-  (assert (not (null fsm-state))))
+  (cl-assert fsm-buffer-p)
+  (cl-assert (not (null fsm-state))))
 
 (defun fsm-summarise (x)
   (if (stringp x)

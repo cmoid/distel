@@ -37,7 +37,6 @@
 ;; March 2002: Big cleanup for use in distributed erlang. Removed the
 ;; old networking code.
 
-(eval-when-compile (require 'cl))
 
 ;; type tags
 
@@ -83,7 +82,7 @@
 
 (defun erlext-binary-to-term (string)
   "Decode and return the elisp representation of `string'."
-  (assert (stringp string))
+  (cl-assert (stringp string))
   (with-temp-buffer
     (set-buffer-multibyte nil)
     (insert string)
@@ -104,7 +103,7 @@
   (apply #'vector elems))
 
 (defun tuple-to-list (x)
-  (assert (tuplep x))
+  (cl-assert (tuplep x))
   (mapcar #'identity x))
 
 (defun tuplep (x)
@@ -141,7 +140,7 @@
            (let* ((list (mapcar #'identity obj))
                   (type (cadr list))
                   (elts (cddr list)))
-             (ecase type
+             (cl-ecase type
                ((erl-pid)
                 (apply #'erlext-write-pid elts))
                ((erl-port)
@@ -162,20 +161,20 @@
          (error "erlext can't marshal %S" obj))))
 
 (defun erlext-write1 (n)
-  (assert (integerp n))
+  (cl-assert (integerp n))
   (insert n))
 (defun erlext-write2 (n)
-  (assert (integerp n))
+  (cl-assert (integerp n))
   (insert (logand (ash n -8) 255)
           (logand n 255)))
 (defun erlext-write4 (n)
-  (assert (integerp n))
+  (cl-assert (integerp n))
   (insert (logand (ash n -24) 255)
           (logand (ash n -16) 255)
           (logand (ash n -8) 255)
           (logand n 255)))
 (defun erlext-writen (bytes)
-  (assert (stringp bytes))
+  (cl-assert (stringp bytes))
   (insert bytes))
 (defun erlext-insert4 (n offset)
   (goto-char offset)
@@ -183,10 +182,10 @@
   (goto-char (point-max)))
 
 (defun erlext-write-atom (atom)
-  (assert (symbolp atom))
+  (cl-assert (symbolp atom))
   (let* ((string (symbol-name atom))
          (len    (length string)))
-    (assert (<= len erlext-max-atom-length))
+    (cl-assert (<= len erlext-max-atom-length))
     (erlext-write1 (erlext-get-code 'atom))
     (erlext-write2 (length string))
     (erlext-writen string)))
@@ -213,7 +212,7 @@
 ;;                (110 8 1 0 0 0 0 0 0 0 32))))
 ;; => (t t t t)
 (defun erlext-write-int (n)
-  (assert (integerp n))
+  (cl-assert (integerp n))
   (cond ((= n (logand n 255))
          (erlext-write1 (erlext-get-code 'smallInt))
          (erlext-write1 n))
@@ -243,10 +242,10 @@
 
 (defun erlext-write-bignum (bignum)
   (let ((sign (if (math-lessp bignum 0) 1 0))
-        (bytes (loop for (x . mod) = (math-idivmod (math-abs bignum) 256)
+        (bytes (cl-loop for (x . mod) = (math-idivmod (math-abs bignum) 256)
                      then (math-idivmod x 256)
                      collect mod into result
-                     do (and (math-zerop x) (return result)))))
+                     do (and (math-zerop x) (cl-return-from result)))))
     (cond
      ((null (nthcdr 255 bytes))
       (erlext-write1 (erlext-get-code 'smallBig))
@@ -270,12 +269,12 @@
 (defun erlext-encode-ieee-double (n)
   ;; Ref: http://en.wikipedia.org/wiki/Double-precision_floating-point_format
   (cl-labels ((fill-mantissa (vec frac)
-                (loop for i from 12 to 63
+                (cl-loop for i from 12 to 63
                       for tmp = (- frac (expt 0.5 (- i 11)))
                       when (>= tmp 0)
                       do (setf (aref vec i) (prog1 1 (setq frac tmp)))))
               (bits->bytes (bits)
-                (loop for i from 0 to 63
+                (cl-loop for i from 0 to 63
                       for b = 7 then (1- b)
                       sum (* (aref bits i) (expt 2 b)) into byte
                       when (zerop b)
@@ -296,7 +295,7 @@
              (cl-fill bits 0 :start 1 :end 12)
              (fill-mantissa bits (* (expt 2 (+ E (1- bias))) S)))
             ;; Move factor 2 to S so that S >= 1.0
-            (t (loop for x = (+ (1- E) bias) then (ash x -1)
+            (t (cl-loop for x = (+ (1- E) bias) then (ash x -1)
                      for i from 11 downto 1
                      do (setf (aref bits i) (logand x 1)))
                (fill-mantissa bits (1- (* 2 S)))))
@@ -316,31 +315,31 @@
                                 (max 0 (- 31 (length f))) 0)))))))
 
 (defun erlext-write-list (lst)
-  (assert (listp lst))
+  (cl-assert (listp lst))
   (if (null lst)
       (erlext-write-null)
     (progn (erlext-write-list-head (length lst))
            (mapc 'erlext-write-obj lst)
            (erlext-write-null))))
 (defun erlext-write-string (str)
-  (assert (stringp str))
+  (cl-assert (stringp str))
   (erlext-write1 (erlext-get-code 'string))
   (erlext-write2 (length str))
   (erlext-writen str))
 (defun erlext-write-binary (str)
-  (assert (stringp str))
+  (cl-assert (stringp str))
   (erlext-write1 (erlext-get-code 'bin))
   (erlext-write4 (length str))
   (erlext-writen str))
 (defun erlext-write-null ()
   (erlext-write1 (erlext-get-code 'null)))
 (defun erlext-write-list-head (arity)
-  (assert (> arity 0))
+  (cl-assert (> arity 0))
   (erlext-write1 (erlext-get-code 'list))
   (erlext-write4 arity))
 
 (defun erlext-write-tuple (elts)
-  (assert (listp elts))
+  (cl-assert (listp elts))
   (let ((arity (length elts)))
     (if (< arity 256)
         (progn (erlext-write1 (erlext-get-code 'smallTuple))
@@ -396,12 +395,12 @@
 
 (defun erlext-read-whole-obj ()
   (let ((version (erlext-read1)))
-    (assert (= version erlext-protocol-version))
+    (cl-assert (= version erlext-protocol-version))
     (erlext-read-obj)))
 
 (defun erlext-read-obj ()
   (let ((tag (erlext-get-tag (erlext-read1))))
-    (case tag
+    (cl-case tag
       ((smallInt)   (erlext-read1))
       ((int)        (erlext-read4))
       ((newFloat)   (erlext-read-ieee-double))
@@ -440,7 +439,7 @@
        (error "Unknown tag: %S" tag)))))
 
 (defun erlext-read (size)
-  (case size
+  (cl-case size
     ((1) (erlext-read1))
     ((2) (erlext-read2))
     ((4) (erlext-read4))))
@@ -455,13 +454,13 @@
           (erlext-read1)))
 
 (defun erlext-readn (n)
-  (assert (integerp n))
+  (cl-assert (integerp n))
   (let ((start (point))
         (end   (+ (point) n)))
     (prog1 (let ((string (buffer-substring start end)))
              (if (featurep 'xemacs)
                  string
-               (string-as-unibyte string))) ; fixme: should be
+               (encode-coding-string string last-coding-system-used))) ; fixme: should be
                                             ; string-make-unibyte?
                                             ; Why is it necessary
                                             ; anyhow?
@@ -478,21 +477,21 @@
 ;; => (t t t t t)
 (defun erlext-read-ieee-double ()
   (cl-labels ((bytes->bits (byte)
-                (nreverse (loop repeat 8
+                (nreverse (cl-loop repeat 8
                                 collect (prog1 (logand byte 1)
                                           (setq byte (ash byte -1)))))))
     (let* ((bias 1023)
-           (bits (apply #'vector (loop repeat 8
+           (bits (apply #'vector (cl-loop repeat 8
                                        append (bytes->bits (erlext-read1)))))
            (sign (if (zerop (aref bits 0)) 1 -1))
-           (exponent (loop for i from 11 downto 1
+           (exponent (cl-loop for i from 11 downto 1
                            sum (if (zerop (aref bits i))
                                    0
                                  (ash 1 (- 11 i)))))
-           (fraction (loop for i from 12 to 63
+           (fraction (cl-loop for i from 12 to 63
                            sum (* (aref bits i)
                                   (expt 0.5 (- i 11))))))
-      (case exponent
+      (cl-case exponent
         (#x7ff (if (zerop fraction)
                    (* sign 1.0e+INF)
                  0.0e+NaN))
@@ -514,14 +513,14 @@
   (erlext-read-tuple (erlext-read4)))
 (defun erlext-read-list ()
   (let ((arity (erlext-read4)))
-    (prog1 (loop for x from 1 to arity
+    (prog1 (cl-loop for x from 1 to arity
                  collect (erlext-read-obj))
       ;; This seems fishy, I find nil's at the end of lists, not
       ;; included as elements, and no mention of how it works in the
       ;; erl_ext_dist.txt
-      (assert (eq (erlext-get-code 'null) (erlext-read1))))))
+      (cl-assert (eq (erlext-get-code 'null) (erlext-read1))))))
 (defun erlext-read-tuple (arity)
-  (apply #'vector (loop for x from 1 to arity
+  (apply #'vector (cl-loop for x from 1 to arity
                         collect (erlext-read-obj))))
 
 (defun erlext-read-string ()
@@ -543,7 +542,7 @@
 (defun erlext-read--bignum (n sign)
   ;; Helper routine for `erlext-read-small-bignum' and
   ;; `erlext-read-large-bignum'.
-  (loop with result = 0
+  (cl-loop with result = 0
         repeat n
         for b = 1 then (math-mul b 256)
         do (setq result (math-add result (math-mul b (erlext-read1))))
@@ -557,7 +556,7 @@
 
 (defun erlext-read-map ()
   (let ((table (make-hash-table :test #'equal)))
-    (loop repeat (erlext-read4)
+    (cl-loop repeat (erlext-read4)
           do (puthash (erlext-read-obj) (erlext-read-obj) table))
     table))
 
@@ -588,7 +587,7 @@ it and making sure that it's unchanged."
 
 (defun erlext-test-case (term)
   (condition-case x
-      (assert (equal term (erlext-binary-to-term (erlext-term-to-binary term))))
+      (cl-assert (equal term (erlext-binary-to-term (erlext-term-to-binary term))))
     (error (error "test failed for %S: %S" term (error-message-string x)))))
 
 (provide 'erlext)

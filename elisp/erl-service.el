@@ -9,7 +9,6 @@
 ;; erlang module, which does most of the work for us.
 
 (require 'erlang)
-(eval-when-compile (require 'cl))
 (require 'erl)
 (require 'derl)
 
@@ -94,7 +93,7 @@ integer."
 If MFA is nil then return nil.
 If only MOD is nil then return FUN/ARITY."
   (if mfa
-      (destructuring-bind (m f a) mfa
+      (cl-destructuring-bind (m f a) mfa
         (if m (format "%s:%s/%S" m f a) (format "%s/%S" f a)))))
 
 (defun erl-parse-mfa (string &optional default-module)
@@ -120,7 +119,7 @@ If not module-qualified then use DEFAULT-MODULE."
           (mf (erlang-get-function-under-point)))
       (if (null mf)
           nil
-        (destructuring-bind (module function) mf
+        (cl-destructuring-bind (module function) mf
           (list (or module default-module) function arity))))))
 
 ;;; FIXME: Merge with erlang.el!
@@ -149,11 +148,11 @@ Should be called with point directly before the opening ( or /."
                          ((looking-at "\\s *\\($\\|%\\)")
                           (forward-line 1))
                          ((looking-at "\\s *,")
-                          (incf res)
+                          (cl-incf res)
                           (goto-char (match-end 0)))
                          (t
                           (when (zerop res)
-                            (incf res))
+                            (cl-incf res))
                           (forward-sexp 1))))
                  res)
              (error nil))))))
@@ -163,7 +162,7 @@ Should be called with point directly before the opening ( or /."
 (add-hook 'erl-nodeup-hook 'erl-check-backend)
 
 (defun erl-check-backend (node _fsm)
-  "Check if we have the 'distel' module available on `node'.
+  "Check if we have the \\='distel\\=' module available on `node'.
 If not then try to send the module over as a binary and load it in."
   (unless distel-inhibit-backend-check
     (erl-spawn
@@ -211,7 +210,7 @@ If not then try to send the module over as a binary and load it in."
           ((['rex ['error reason]]
             (erl-warn-backend-problem node reason))
            (['rex _]
-            (&erl-load-backend-modules node (rest modules))))))))
+            (&erl-load-backend-modules node (cl-rest modules))))))))
 
 (defun erl-warn-backend-problem (node reason)
   (with-current-buffer (get-buffer-create "*Distel Warning*")
@@ -506,10 +505,10 @@ truncate to fit on the screen."
   "Alist of Tag -> Properties.
 Tag is a symbol like foo:bar/2
 Properties is an alist of:
-  'text     -> String
-  'callers  -> list of Tag
-  'callees  -> list of Tag
-  'beamfile -> String | undefined")
+  \\='text     -> String
+  \\='callers  -> list of Tag
+  \\='callees  -> list of Tag
+  \\='beamfile -> String | undefined")
 
 (defvar fprof-header nil
   "Header listing for fprof text entries.
@@ -829,11 +828,11 @@ function under point"
 
 (defun erl-do-find-doc (what how &optional module function ari)
   "Find the documentation for an OTP mfa.
-if WHAT is 'link, tries to get a link to the html docs, and use
+if WHAT is \\='link, tries to get a link to the html docs, and use
 `browse-url' to open it. if WHAT is nil, prints the function
-signature in the mini-buffer. If HOW is 'point, tries to find the
+signature in the mini-buffer. If HOW is \\='point, tries to find the
 mfa at point; if HOW is nil, prompts for an mfa."
-  (destructuring-bind
+  (cl-destructuring-bind
       (mod fun ari)
       (or (if (null how)
               (erl-parse-mfa (read-string "Function reference: ") "-")
@@ -1153,9 +1152,9 @@ The match positions are erl-mfa-regexp-{module,function,arity}-match.")
   (let* ((mfa (erl-read-call-mfa))
          (defaultstr (if (null mfa)
                          nil
-                       (concat (if (first mfa)  (format "%s:" (first mfa)) "")
-                               (if (second mfa) (format "%s"  (second mfa)) "")
-                               (if (third mfa)  (format "/%S" (third mfa))))))
+                       (concat (if (cl-first mfa)  (format "%s:" (cl-first mfa)) "")
+                               (if (cl-second mfa) (format "%s"  (cl-second mfa)) "")
+                               (if (cl-third mfa)  (format "/%S" (cl-third mfa))))))
          (prompt (format "M[:F[/A]]: %s"
                          (if defaultstr
                              (format "(default %s) " defaultstr)
@@ -1188,7 +1187,7 @@ The match positions are erl-mfa-regexp-{module,function,arity}-match.")
 ;;;; Argument lists
 
 (defun erl-openparen ()
-  "Insert a '(' character and show arglist information."
+  "Insert a \\='(\\=' character and show arglist information."
   (interactive)
   (erl-show-arglist)
   (insert "("))
@@ -1302,7 +1301,7 @@ The match positions are erl-mfa-regexp-{module,function,arity}-match.")
   (save-restriction
     (widen)
     (goto-char (point-min))
-    (and (plusp line)
+    (and (cl-plusp line)
          (forward-line (1- line)))))
 
 (defmacro erl-propertize-insert (props &rest body)
@@ -1313,3 +1312,6 @@ The match positions are erl-mfa-regexp-{module,function,arity}-match.")
          (add-text-properties ,start (point) ,props)))))
 
 (provide 'erl-service)
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:

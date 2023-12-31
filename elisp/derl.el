@@ -14,9 +14,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
-
 (defvar erl-nodeup-hook nil
   "Called when peer appears.
 Called with two args, NODE and FSM.  NODE is a symbol of the form
@@ -280,11 +277,11 @@ gen_digest() function:
           (set-buffer-multibyte nil)
           (insert msg)
           (goto-char (point-min))
-          (assert (= (erlext-read1) 112)) ; type = pass through..
+          (cl-assert (= (erlext-read1) 112)) ; type = pass through..
           (setq ctl (erlext-read-whole-obj))
           (when (< (point) (point-max))
             (setq req (erlext-read-whole-obj))))
-        (ecase (tuple-elt ctl 1)
+        (cl-ecase (tuple-elt ctl 1)
           ((1) ;; link: [1 FROM TO]
            (let ((from (tuple-elt ctl 2))
                  (to   (tuple-elt ctl 3)))
@@ -516,7 +513,7 @@ is not allowed in the node or host name."
 (defun derl-node-name (node)
   "Take the atom node part of a node name, e.g.
   (derl-node-name \"foo@bar\") => \"foo\""
-  (assert (derl-node-p node))
+  (cl-assert (derl-node-p node))
   (let ((string (symbol-name node)))
     (string-match "^[^@]+" string)
     (match-string 0 string)))
@@ -524,7 +521,7 @@ is not allowed in the node or host name."
 (defun derl-node-host (node)
   "Take the host part of a node name, e.g.
   (derl-node-host \"foo@bar\") => \"bar\""
-  (assert (derl-node-p node))
+  (cl-assert (derl-node-p node))
   (let ((string (symbol-name node)))
     (string-match "[^@]+$" string)
     (match-string 0 string)))
